@@ -75,6 +75,7 @@ def furniture_subcategory_summary(df):
     ax.set_ylim(-100, 40)
 
     plt.tight_layout()
+    plt.savefig('charts/tables_margin_by_discount.png', dpi=300, bbox_inches='tight')
     plt.show()
 
 furniture_subcategory_summary(df)
