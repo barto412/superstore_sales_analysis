@@ -20,17 +20,27 @@ def basic_statistics(df):
     print(f"Total Profit: {df['Profit'].sum():.2f}")
     print(f"Unique product categories: {df['Category'].nunique()}")
 
+#summary by category and sub-category (sales, profit, margin %)
 def category_summary(df):
-    summary = df.groupby('Category').agg({
+    category_summary = df.groupby('Category').agg({
         'Sales': 'sum', 
-        'Profit': 'sum'
+        'Profit': 'sum',
+        'Discount': 'mean'
     })
+    category_summary['Margin %'] = (category_summary['Profit'] / category_summary['Sales']) * 100
+    category_summary = category_summary.sort_values(by='Margin %', ascending=False)
+    print("\nCategory Summary:")
+    print(category_summary.round(2))
 
-    summary['Margin %'] = (summary['Profit'] / summary['Sales']) * 100
-
-    summary = summary.sort_values(by='Profit', ascending=False)
-
-    return summary.round(2)
+    subcategory_summary = df.groupby(['Category', 'Sub-Category']).agg({
+        'Sales': 'sum', 
+        'Profit': 'sum',
+        'Discount': 'mean'
+    })
+    subcategory_summary['Margin %'] = (subcategory_summary['Profit'] / subcategory_summary['Sales']) * 100
+    subcategory_summary = subcategory_summary.sort_values(by=['Category', 'Margin %'], ascending=[True, False])
+    print("\nSub-Category Summary:")
+    print(subcategory_summary.round(2))
 
 def furniture_subcategory_summary(df):
     furniture_summary = df[df['Category'] == 'Furniture'].groupby('Sub-Category').agg({
@@ -78,4 +88,4 @@ def furniture_subcategory_summary(df):
     plt.savefig('charts/tables_margin_by_discount.png', dpi=300, bbox_inches='tight')
     plt.show()
 
-furniture_subcategory_summary(df)
+category_summary(df)
