@@ -9,10 +9,7 @@ def data_exploration(df):
     print(df.head())
     print(df.shape)
     df.info()
-    print(df.describe())
     print(df.columns)
-    print(df.isna().sum().sum())
-    print(df.duplicated().sum())
 
 def basic_statistics(df):
     print("Basic Statistics:")
