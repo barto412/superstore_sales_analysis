@@ -25,6 +25,8 @@ def category_summary(df):
         'Discount': 'mean'
     })
     category_summary['Margin %'] = (category_summary['Profit'] / category_summary['Sales']) * 100
+    category_summary['Negative profit count'] = df[df['Profit'] < 0].groupby('Category')['Profit'].count()
+    category_summary['% of negative profit'] = (category_summary['Negative profit count'] / df.groupby('Category')['Profit'].count()) * 100
     category_summary = category_summary.sort_values(by='Margin %', ascending=False)
     print("\nCategory Summary:")
     print(category_summary.round(2))
@@ -35,6 +37,10 @@ def category_summary(df):
         'Discount': 'mean'
     })
     subcategory_summary['Margin %'] = (subcategory_summary['Profit'] / subcategory_summary['Sales']) * 100
+    subcategory_summary['Negative profit count'] = df[df['Profit'] < 0].groupby(['Category', 'Sub-Category'])['Profit'].count()
+    subcategory_summary['% of negative profit'] = (subcategory_summary['Negative profit count'] / df.groupby(['Category', 'Sub-Category'])['Profit'].count()) * 100
+    subcategory_summary['Negative profit count'] = subcategory_summary['Negative profit count'].fillna(0).astype(int)
+    subcategory_summary['% of negative profit'] = subcategory_summary['% of negative profit'].fillna(0)
     subcategory_summary = subcategory_summary.sort_values(by=['Category', 'Margin %'], ascending=[True, False])
     print("\nSub-Category Summary:")
     print(subcategory_summary.round(2))
