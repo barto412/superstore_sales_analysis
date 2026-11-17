@@ -1,17 +1,16 @@
 import pandas as pd
 
-df = pd.read_csv('data/data.csv', encoding='latin-1')
-
 #check data types of the columns
 def check_data_types(df):
     print("Data Types:")
     print(df.dtypes)
 
-#check dates for invalid values and negative shipping time
-def convert_check_dates(df):
+def convert_dates(df):
     df['Order Date'] = pd.to_datetime(df['Order Date'], errors='coerce', format='%m/%d/%Y')
     df['Ship Date'] = pd.to_datetime(df['Ship Date'], errors='coerce', format='%m/%d/%Y')
 
+#check dates for invalid values and negative shipping time
+def check_dates(df):
     print(df[['Order Date', 'Ship Date']].isna().sum().sum(), "rows have invalid dates.")
 
     delta = df['Ship Date'] - df['Order Date']
@@ -38,7 +37,11 @@ def check_numeric_values(df):
     negative_profit_percentage = (negative_profit / len(df)) * 100
     print(negative_profit, "rows have negative profit values.")
     print(f"Percentage of rows with negative profit: {negative_profit_percentage:.2f}%")
-
-check_data_types(df)
-convert_check_dates(df)
-check_numeric_values(df)
+    
+if __name__ == "__main__":
+    df = pd.read_csv('data/data.csv', encoding='latin-1')
+    
+    convert_dates(df)
+    check_data_types(df)
+    check_dates(df)
+    check_numeric_values(df)

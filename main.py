@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from data_cleaning import convert_dates
 
 df = pd.read_csv('data/data.csv', encoding='latin-1')
 
@@ -91,4 +92,36 @@ def furniture_subcategory_summary(df):
     plt.savefig('charts/tables_margin_by_discount.png', dpi=300, bbox_inches='tight')
     plt.show()
 
-category_summary(df)
+def product_summary(df):
+    convert_dates(df)
+    df['Year'] = df['Order Date'].dt.year
+
+    #summary by product (sales, profit, margin %, negative profit count, % of negative profit)
+    product_sales_summary = df.groupby('Product Name').agg({
+        'Category': 'first',
+        'Sub-Category': 'first',
+        'Sales': 'sum', 
+        'Profit': 'sum',
+        'Discount': 'mean'
+    })
+    product_sales_summary['Margin %'] = (product_sales_summary['Profit'] / product_sales_summary['Sales']) * 100
+    product_sales_summary['Negative profit count'] = df[df['Profit'] < 0].groupby('Product Name')['Profit'].count()
+    product_sales_summary['Negative profit count'] = product_sales_summary['Negative profit count'].fillna(0).astype(int)
+    product_sales_summary['% of negative profit'] = (product_sales_summary['Negative profit count'] / df.groupby('Product Name')['Profit'].count()) * 100
+    product_sales_summary = product_sales_summary.sort_values(by='Negative profit count', ascending=False)
+    print("\nProduct Sales Summary:")
+    print(product_sales_summary.head(10).round(2))
+
+    #specific product summary (change the product name to analyze a different product)
+    specific_product = df[df['Product Name'] == 'Hon 61000 Series Interactive Training Tables']
+    specific_product_summary = specific_product.groupby('Year').agg({
+        'Sales': 'sum', 
+        'Profit': 'sum',
+    })
+    specific_product_summary['Product Count'] = specific_product.groupby('Year')['Product Name'].count()
+    specific_product_summary['Margin %'] = (specific_product_summary['Profit'] / specific_product_summary['Sales']) * 100
+    specific_product_summary['Average profit per year'] = specific_product_summary['Profit'] / specific_product_summary['Product Count']
+    print("\nSpecific Product Summary:")
+    print(specific_product_summary.round(2))
+
+product_summary(df)
